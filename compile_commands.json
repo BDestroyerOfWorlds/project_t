@@ -1,0 +1,15 @@
+[
+  {
+    "arguments": [
+      "/usr/lib64/ccache/gcc",
+      "-c",
+      "-std=c23",
+      "-o",
+      "start",
+      "main.c"
+    ],
+    "directory": "/home/b/C_projects/project_t",
+    "file": "/home/b/C_projects/project_t/main.c",
+    "output": "/home/b/C_projects/project_t/start"
+  }
+]
