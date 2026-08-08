@@ -3,3 +3,4 @@
 start
 *.o
 *.out
+compile_commands.json

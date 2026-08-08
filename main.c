@@ -40,19 +40,27 @@ void control() {
   switch (command) {
 
   case 'w':
-    player_y -= 1;
+    if (player_y > 1) {
+      player_y -= 1;
+    }
     break;
 
   case 's':
-    player_y += 1;
+    if (player_y < 31) {
+      player_y += 1;
+    }
     break;
 
   case 'a':
-    player_x -= 1;
+    if (player_x > 1) {
+      player_x -= 1;
+    }
     break;
 
   case 'd':
-    player_x += 1;
+    if (player_x < 63) {
+      player_x += 1;
+    }
     break;
 
   case 'q':
