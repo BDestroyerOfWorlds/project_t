@@ -1,2 +1,5 @@
-.zed
-.cache/clangd/index
+.zed/
+.cache/
+start
+*.o
+*.out
