@@ -94,8 +94,6 @@ int main(void) {
 
     control();
 
-    sleep(1);
-
     clear_screen();
   }
 
