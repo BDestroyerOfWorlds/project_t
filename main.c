@@ -40,7 +40,7 @@ void control() {
   switch (command) {
 
   case 'w':
-    if (player_y > 1) {
+    if (player_y > 0) {
       player_y -= 1;
     }
     break;
@@ -52,7 +52,7 @@ void control() {
     break;
 
   case 'a':
-    if (player_x > 1) {
+    if (player_x > 0) {
       player_x -= 1;
     }
     break;
