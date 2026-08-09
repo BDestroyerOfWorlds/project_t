@@ -3,12 +3,18 @@
 #include <termios.h>
 #include <unistd.h>
 
+//-------------------------------
+
 bool running = true;
+
+//-------------------------------
 
 void clear_screen() {
   printf("\033[2J");
   printf("\033[H");
 }
+
+//-------------------------------
 
 struct termios original;
 
@@ -32,8 +38,12 @@ void rawmode(void) {
   }
 }
 
+//-------------------------------
+
 int player_x = 32;
 int player_y = 16;
+
+//-------------------------------
 
 void control() {
   int command = getchar();
@@ -69,15 +79,44 @@ void control() {
   }
 }
 
+//-------------------------------
+
 int main(void) {
 
   rawmode();
 
   // TILES
   char blank = ' ';
-  char path = '#';
+  char bush = '#';
   char player = '@';
   // TILES
+
+  //-------------------------------
+
+  int seed = 0;
+
+  int random_x = 1;
+  int random_y = 1;
+
+  srand(seed);
+  int random_modulo = rand() % 4;
+
+  switch (random_modulo) {
+  case 0:
+    random_x += 1;
+    break;
+  case 1:
+    random_x -= 1;
+    break;
+  case 2:
+    random_y += 1;
+    break;
+  case 3:
+    random_y -= 1;
+    break;
+  }
+
+  //-------------------------------
 
   clear_screen();
 
@@ -86,8 +125,10 @@ int main(void) {
       for (int x = 0; x < 64; x++) {
         if (x == player_x && y == player_y)
           putchar(player);
+        else if (x == random_x && y == random_y)
+          putchar(blank);
         else
-          putchar(path);
+          putchar(bush);
       }
       printf("\n");
     }
@@ -99,3 +140,5 @@ int main(void) {
 
   return 0;
 }
+
+//-------------------------------
