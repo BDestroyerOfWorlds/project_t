@@ -13,6 +13,9 @@ char grid[32][64];
 int wave_y[128];
 int wave_x[128];
 
+int neutral_y[8];
+int neutral_x[8];
+
 //-------------------------------
 
 // TILES
@@ -34,6 +37,21 @@ void place_waves() {
 
     wave_y[i] = random_wave_y;
     wave_x[i] = random_wave_x;
+  }
+}
+
+//-------------------------------
+
+void place_neutrals() {
+  for (int i = 0; i < 8; i++) {
+    int random_neutral_y, random_neutral_x;
+    do {
+      random_neutral_y = rand() % 32;
+      random_neutral_x = rand() % 64;
+    } while (grid[random_neutral_y][random_neutral_x] != sea);
+
+    neutral_y[i] = random_neutral_y;
+    neutral_x[i] = random_neutral_x;
   }
 }
 
@@ -75,6 +93,44 @@ void move_waves() {
   }
 }
 
+//-------------------------------
+
+void move_neutrals() {
+  for (int k = 0; k < 8; k++) {
+    int next_neutral_y = neutral_y[k];
+    int next_neutral_x = neutral_x[k];
+
+    int random_modulo = rand() % 4;
+    switch (random_modulo) {
+    case 0:
+      next_neutral_y += 1;
+      break;
+    case 1:
+      next_neutral_y -= 1;
+      break;
+    case 2:
+      next_neutral_x += 1;
+      break;
+    case 3:
+      next_neutral_x -= 1;
+      break;
+    }
+    if (next_neutral_y >= 0 && next_neutral_y < 32 && next_neutral_x >= 0 &&
+        next_neutral_x < 64 && grid[next_neutral_y][next_neutral_x] != land) {
+      neutral_y[k] = next_neutral_y;
+      neutral_x[k] = next_neutral_x;
+
+    } else {
+      int random_neutral_y, random_neutral_x;
+      do {
+        random_neutral_y = rand() % 32;
+        random_neutral_x = rand() % 64;
+      } while (grid[random_neutral_y][random_neutral_x] != sea);
+      neutral_y[k] = random_neutral_y;
+      neutral_x[k] = random_neutral_x;
+    }
+  }
+}
 //-------------------------------
 
 void clear_screen() {
@@ -205,6 +261,8 @@ int main() {
 
   place_waves();
 
+  place_neutrals();
+
   clear_screen();
 
   while (running) {
@@ -239,6 +297,8 @@ int main() {
     control();
 
     move_waves();
+
+    move_neutrals();
 
     clear_screen();
   }
