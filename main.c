@@ -8,6 +8,20 @@
 
 bool running = true;
 
+char grid[32][64];
+
+// TILES
+char sea = ' ';
+char land = '#';
+char ship = '@';
+char wave = '~';
+// TILES
+
+//-------------------------------
+
+int wave_y[16];
+int wave_x[16];
+
 //-------------------------------
 
 void clear_screen() {
@@ -51,25 +65,25 @@ void control() {
   switch (command) {
 
   case 'w':
-    if (player_y > 0) {
+    if ((player_y > 0) && (grid[player_y - 1][player_x] != land)) {
       player_y -= 1;
     }
     break;
 
   case 's':
-    if (player_y < 31) {
+    if ((player_y < 31) && (grid[player_y + 1][player_x] != land)) {
       player_y += 1;
     }
     break;
 
   case 'a':
-    if (player_x > 0) {
+    if ((player_x > 0) && (grid[player_y][player_x - 1] != land)) {
       player_x -= 1;
     }
     break;
 
   case 'd':
-    if (player_x < 63) {
+    if ((player_x < 63) && (grid[player_y][player_x + 1] != land)) {
       player_x += 1;
     }
     break;
@@ -86,21 +100,15 @@ int main(void) {
 
   rawmode();
 
-  // TILES
-  char sea = ' ';
-  char land = '#';
-  char ship = '@';
-  // TILES
-
   //-------------------------------
-
-  char grid[32][64];
 
   for (int y = 0; y < 32; y++) {
     for (int x = 0; x < 64; x++) {
       grid[y][x] = land;
     }
   }
+
+  //-------------------------------
 
   int walk_x = 32;
   int walk_y = 16;
@@ -133,6 +141,20 @@ int main(void) {
       break;
     }
   }
+
+  //-------------------------------
+
+  for (int i = 0; i < 10; i++) {
+    int random_wave_x, random_wave_y;
+    do {
+      random_wave_y = rand() % 32;
+      random_wave_x = rand() % 64;
+    } while (grid[random_wave_y][random_wave_x] != sea);
+
+    wave_y[i] = random_wave_y;
+    wave_x[i] = random_wave_x;
+  }
+
   //-------------------------------
 
   clear_screen();
@@ -140,9 +162,11 @@ int main(void) {
   while (running) {
     for (int y = 0; y < 32; y++) {
       for (int x = 0; x < 64; x++) {
-        if (x == player_x && y == player_y)
+        if (x == player_x && y == player_y) {
+          printf("\033[33m");
           putchar(ship);
-        else if (grid[y][x] == land) {
+          printf("\033[0m");
+        } else if (grid[y][x] == land) {
           printf("\033[32m");
           putchar(land);
           printf("\033[0m");
