@@ -87,9 +87,9 @@ int main(void) {
   rawmode();
 
   // TILES
-  char blank = ' ';
-  char bush = '#';
-  char player = '@';
+  char sea = ' ';
+  char land = '#';
+  char ship = '@';
   // TILES
 
   //-------------------------------
@@ -98,7 +98,7 @@ int main(void) {
 
   for (int y = 0; y < 32; y++) {
     for (int x = 0; x < 64; x++) {
-      grid[y][x] = bush;
+      grid[y][x] = land;
     }
   }
 
@@ -108,7 +108,7 @@ int main(void) {
   srand(time(NULL));
 
   for (int path_steps = 8192; path_steps > 0; path_steps--) {
-    grid[walk_y][walk_x] = blank;
+    grid[walk_y][walk_x] = sea;
     int random_modulo = rand() % 4;
     switch (random_modulo) {
     case 0:
@@ -141,10 +141,10 @@ int main(void) {
     for (int y = 0; y < 32; y++) {
       for (int x = 0; x < 64; x++) {
         if (x == player_x && y == player_y)
-          putchar(player);
-        else if (grid[y][x] == bush) {
+          putchar(ship);
+        else if (grid[y][x] == land) {
           printf("\033[32m");
-          putchar(bush);
+          putchar(land);
           printf("\033[0m");
         } else
           putchar(grid[y][x]);
