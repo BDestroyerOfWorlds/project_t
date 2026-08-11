@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
 #include <stdlib.h>
 #include <termios.h>
@@ -10,6 +11,11 @@ bool running = true;
 
 char grid[32][64];
 
+int wave_y[64];
+int wave_x[64];
+
+//-------------------------------
+
 // TILES
 char sea = ' ';
 char land = '#';
@@ -19,8 +25,56 @@ char wave = '~';
 
 //-------------------------------
 
-int wave_y[16];
-int wave_x[16];
+void place_waves() {
+  for (int i = 0; i < 64; i++) {
+    int random_wave_x, random_wave_y;
+    do {
+      random_wave_y = rand() % 32;
+      random_wave_x = rand() % 64;
+    } while (grid[random_wave_y][random_wave_x] != sea);
+
+    wave_y[i] = random_wave_y;
+    wave_x[i] = random_wave_x;
+  }
+}
+
+//-------------------------------
+
+void move_waves() {
+  for (int i = 0; i < 64; i++) {
+    int next_wave_y = wave_y[i];
+    int next_wave_x = wave_x[i];
+
+    int random_modulo = rand() % 4;
+    switch (random_modulo) {
+    case 0:
+      next_wave_y += 1;
+      break;
+    case 1:
+      next_wave_y -= 1;
+      break;
+    case 2:
+      next_wave_x += 1;
+      break;
+    case 3:
+      next_wave_x -= 1;
+      break;
+    }
+    if (next_wave_y >= 0 && next_wave_y < 32 && next_wave_x >= 0 &&
+        next_wave_x < 64 && grid[next_wave_y][next_wave_x] != land) {
+      wave_y[i] = next_wave_y;
+      wave_x[i] = next_wave_x;
+    } else {
+      int random_wave_y, random_wave_x;
+      do {
+        random_wave_y = rand() % 32;
+        random_wave_x = rand() % 64;
+      } while (grid[random_wave_y][random_wave_x] != sea);
+      wave_y[i] = random_wave_y;
+      wave_x[i] = random_wave_x;
+    }
+  }
+}
 
 //-------------------------------
 
@@ -46,6 +100,8 @@ void rawmode(void) {
 
   struct termios raw = original;
   raw.c_lflag &= ~(ICANON | ECHO);
+  raw.c_cc[VMIN] = 0;
+  raw.c_cc[VTIME] = 0;
 
   if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) {
     perror("tcsetattr");
@@ -144,24 +200,19 @@ int main(void) {
 
   //-------------------------------
 
-  for (int i = 0; i < 10; i++) {
-    int random_wave_x, random_wave_y;
-    do {
-      random_wave_y = rand() % 32;
-      random_wave_x = rand() % 64;
-    } while (grid[random_wave_y][random_wave_x] != sea);
-
-    wave_y[i] = random_wave_y;
-    wave_x[i] = random_wave_x;
-  }
-
-  //-------------------------------
+  place_waves();
 
   clear_screen();
 
   while (running) {
     for (int y = 0; y < 32; y++) {
       for (int x = 0; x < 64; x++) {
+        bool found_wave = false;
+        for (int j = 0; j < 64; j++) {
+          if (wave_x[j] == x && wave_y[j] == y) {
+            found_wave = true;
+          }
+        };
         if (x == player_x && y == player_y) {
           printf("\033[33m");
           putchar(ship);
@@ -170,7 +221,13 @@ int main(void) {
           printf("\033[32m");
           putchar(land);
           printf("\033[0m");
-        } else
+        } else if (found_wave) {
+          printf("\033[34m");
+          putchar(wave);
+          printf("\033[0m");
+        }
+
+        else
           putchar(grid[y][x]);
       }
       printf("\n");
@@ -178,7 +235,19 @@ int main(void) {
 
     control();
 
+    move_waves();
+
     clear_screen();
+
+    //-------------------------------
+
+    struct timespec delay;
+    delay.tv_sec = 0;
+    delay.tv_nsec = 100000000;
+
+    nanosleep(&delay, NULL);
+
+    //-------------------------------
   }
 
   return 0;
