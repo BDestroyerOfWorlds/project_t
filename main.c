@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <termios.h>
+#include <time.h>
 #include <unistd.h>
 
 //-------------------------------
@@ -93,29 +94,45 @@ int main(void) {
 
   //-------------------------------
 
-  int seed = 0;
+  char grid[32][64];
 
-  int random_x = 1;
-  int random_y = 1;
-
-  srand(seed);
-  int random_modulo = rand() % 4;
-
-  switch (random_modulo) {
-  case 0:
-    random_x += 1;
-    break;
-  case 1:
-    random_x -= 1;
-    break;
-  case 2:
-    random_y += 1;
-    break;
-  case 3:
-    random_y -= 1;
-    break;
+  for (int y = 0; y < 32; y++) {
+    for (int x = 0; x < 64; x++) {
+      grid[y][x] = bush;
+    }
   }
 
+  int walk_x = 32;
+  int walk_y = 16;
+
+  srand(time(NULL));
+
+  for (int path_steps = 8192; path_steps > 0; path_steps--) {
+    grid[walk_y][walk_x] = blank;
+    int random_modulo = rand() % 4;
+    switch (random_modulo) {
+    case 0:
+      if (walk_x < 63) {
+        walk_x += 1;
+      }
+      break;
+    case 1:
+      if (walk_x > 0) {
+        walk_x -= 1;
+      }
+      break;
+    case 2:
+      if (walk_y < 31) {
+        walk_y += 1;
+      }
+      break;
+    case 3:
+      if (walk_y > 0) {
+        walk_y -= 1;
+      }
+      break;
+    }
+  }
   //-------------------------------
 
   clear_screen();
@@ -125,10 +142,12 @@ int main(void) {
       for (int x = 0; x < 64; x++) {
         if (x == player_x && y == player_y)
           putchar(player);
-        else if (x == random_x && y == random_y)
-          putchar(blank);
-        else
+        else if (grid[y][x] == bush) {
+          printf("\033[32m");
           putchar(bush);
+          printf("\033[0m");
+        } else
+          putchar(grid[y][x]);
       }
       printf("\n");
     }
