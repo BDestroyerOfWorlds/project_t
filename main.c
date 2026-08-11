@@ -1,4 +1,3 @@
-#define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
 #include <stdlib.h>
 #include <termios.h>
@@ -11,8 +10,8 @@ bool running = true;
 
 char grid[32][64];
 
-int wave_y[64];
-int wave_x[64];
+int wave_y[128];
+int wave_x[128];
 
 //-------------------------------
 
@@ -26,7 +25,7 @@ char wave = '~';
 //-------------------------------
 
 void place_waves() {
-  for (int i = 0; i < 64; i++) {
+  for (int i = 0; i < 128; i++) {
     int random_wave_x, random_wave_y;
     do {
       random_wave_y = rand() % 32;
@@ -41,7 +40,7 @@ void place_waves() {
 //-------------------------------
 
 void move_waves() {
-  for (int i = 0; i < 64; i++) {
+  for (int i = 0; i < 128; i++) {
     int next_wave_y = wave_y[i];
     int next_wave_x = wave_x[i];
 
@@ -101,7 +100,7 @@ void rawmode(void) {
   struct termios raw = original;
   raw.c_lflag &= ~(ICANON | ECHO);
   raw.c_cc[VMIN] = 0;
-  raw.c_cc[VTIME] = 0;
+  raw.c_cc[VTIME] = 2;
 
   if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) {
     perror("tcsetattr");
@@ -118,6 +117,10 @@ int player_y = 16;
 
 void control() {
   int command = getchar();
+  if (command == EOF) {
+    clearerr(stdin);
+  }
+
   switch (command) {
 
   case 'w':
@@ -208,7 +211,7 @@ int main(void) {
     for (int y = 0; y < 32; y++) {
       for (int x = 0; x < 64; x++) {
         bool found_wave = false;
-        for (int j = 0; j < 64; j++) {
+        for (int j = 0; j < 128; j++) {
           if (wave_x[j] == x && wave_y[j] == y) {
             found_wave = true;
           }
@@ -238,16 +241,6 @@ int main(void) {
     move_waves();
 
     clear_screen();
-
-    //-------------------------------
-
-    struct timespec delay;
-    delay.tv_sec = 0;
-    delay.tv_nsec = 100000000;
-
-    nanosleep(&delay, NULL);
-
-    //-------------------------------
   }
 
   return 0;
