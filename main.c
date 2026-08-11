@@ -86,9 +86,9 @@ void clear_screen() {
 
 struct termios original;
 
-void restore_terminal(void) { tcsetattr(STDIN_FILENO, TCSAFLUSH, &original); }
+void restore_terminal() { tcsetattr(STDIN_FILENO, TCSAFLUSH, &original); }
 
-void rawmode(void) {
+void rawmode() {
 
   if (tcgetattr(STDIN_FILENO, &original) == -1) {
     perror("tcgetattr");
@@ -155,7 +155,7 @@ void control() {
 
 //-------------------------------
 
-int main(void) {
+int main() {
 
   rawmode();
 
