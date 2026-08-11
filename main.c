@@ -8,6 +8,9 @@
 
 bool running = true;
 
+int player_x = 32;
+int player_y = 16;
+
 char grid[32][64];
 
 int wave_y[128];
@@ -15,6 +18,10 @@ int wave_x[128];
 
 int neutral_y[8];
 int neutral_x[8];
+
+//-------------------------------
+
+int neutral_color[8] = {31, 35, 36, 91, 95, 96, 90, 97};
 
 //-------------------------------
 
@@ -95,6 +102,28 @@ void move_waves() {
 
 //-------------------------------
 
+bool tile_has_wave(int x, int y) {
+  for (int j = 0; j < 128; j++) {
+    if (wave_y[j] == y && wave_x[j] == x) {
+      return true;
+    }
+  }
+  return false;
+}
+
+//-------------------------------
+
+int find_neutral(int x, int y) {
+  for (int k = 0; k < 8; k++) {
+    if (neutral_y[k] == y && neutral_x[k] == x) {
+      return k;
+    }
+  }
+  return -1;
+}
+
+//-------------------------------
+
 void move_neutrals() {
   for (int k = 0; k < 8; k++) {
     int next_neutral_y = neutral_y[k];
@@ -116,21 +145,15 @@ void move_neutrals() {
       break;
     }
     if (next_neutral_y >= 0 && next_neutral_y < 32 && next_neutral_x >= 0 &&
-        next_neutral_x < 64 && grid[next_neutral_y][next_neutral_x] != land) {
+        next_neutral_x < 64 && grid[next_neutral_y][next_neutral_x] != land &&
+        find_neutral(next_neutral_x, next_neutral_y == -1) &&
+        !(next_neutral_y == player_y && next_neutral_x == player_x)) {
       neutral_y[k] = next_neutral_y;
       neutral_x[k] = next_neutral_x;
-
-    } else {
-      int random_neutral_y, random_neutral_x;
-      do {
-        random_neutral_y = rand() % 32;
-        random_neutral_x = rand() % 64;
-      } while (grid[random_neutral_y][random_neutral_x] != sea);
-      neutral_y[k] = random_neutral_y;
-      neutral_x[k] = random_neutral_x;
     }
   }
 }
+
 //-------------------------------
 
 void clear_screen() {
@@ -163,11 +186,6 @@ void rawmode() {
     exit(1);
   }
 }
-
-//-------------------------------
-
-int player_x = 32;
-int player_y = 16;
 
 //-------------------------------
 
@@ -268,12 +286,6 @@ int main() {
   while (running) {
     for (int y = 0; y < 32; y++) {
       for (int x = 0; x < 64; x++) {
-        bool found_wave = false;
-        for (int j = 0; j < 128; j++) {
-          if (wave_x[j] == x && wave_y[j] == y) {
-            found_wave = true;
-          }
-        };
         if (x == player_x && y == player_y) {
           printf("\033[33m");
           putchar(ship);
@@ -282,13 +294,16 @@ int main() {
           printf("\033[32m");
           putchar(land);
           printf("\033[0m");
-        } else if (found_wave) {
+        } else if (find_neutral(x, y) != -1) {
+          int idx = find_neutral(x, y);
+          printf("\033[%dm", neutral_color[idx]);
+          putchar(ship);
+          printf("\033[0m");
+        } else if (tile_has_wave(x, y)) {
           printf("\033[34m");
           putchar(wave);
           printf("\033[0m");
-        }
-
-        else
+        } else
           putchar(grid[y][x]);
       }
       printf("\n");
