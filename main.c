@@ -172,7 +172,7 @@ int main() {
   int walk_x = 32;
   int walk_y = 16;
 
-  srand(time(NULL));
+  srand(time(nullptr));
 
   for (int path_steps = 8192; path_steps > 0; path_steps--) {
     grid[walk_y][walk_x] = sea;
