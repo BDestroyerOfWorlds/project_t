@@ -146,7 +146,7 @@ void move_neutrals() {
     }
     if (next_neutral_y >= 0 && next_neutral_y < 32 && next_neutral_x >= 0 &&
         next_neutral_x < 64 && grid[next_neutral_y][next_neutral_x] != land &&
-        find_neutral(next_neutral_x, next_neutral_y == -1) &&
+        find_neutral(next_neutral_x, next_neutral_y) == -1 &&
         !(next_neutral_y == player_y && next_neutral_x == player_x)) {
       neutral_y[k] = next_neutral_y;
       neutral_x[k] = next_neutral_x;
